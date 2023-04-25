@@ -1,0 +1,186 @@
+<div class="flex flex-row" cdkGroupList>
+  <div class="w-1/3 p-4">
+    <h3 class="flex items-center justify-between mb-4">
+      <span class="font-bold">To Do</span>
+
+      <!-- Form to add a TODO -->
+      <button
+        type="button"
+        class="text-gray-600 hover:text-gray-800 focus:outline-none focus:text-gray-800"
+        (click)="showAddTodo = !showAddTodo"
+      >
+        <svg
+          class="h-5 w-5 fill-current"
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 20 20"
+        >
+          <path
+            d="M10 18a8 8 0 100-16 8 8 0 000 16zm0-2a6 6 0 110-12 6 6 0 010 12z"
+          />
+        </svg>
+      </button>
+    </h3>
+    <!-- Add TODO Form -->
+    <form
+      class="mt-4"
+      [hidden]="!showAddTodo"
+      #f="ngForm"
+      (submit)="addTodo(f); showAddTodo = false"
+    >
+      <div class="mb-4">
+        <input
+          type="text"
+          class="appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+          placeholder="Title"
+          name="title"
+          [(ngModel)]="todo.title"
+        />
+      </div>
+      <div class="mb-4">
+        <textarea
+          class="appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+          rows="3"
+          name="description"
+          placeholder="Description"
+          [(ngModel)]="todo.description"
+        ></textarea>
+      </div>
+      <button
+        type="submit"
+        class="bg-blue-500 text-white active:bg-amber-600 font-bold uppercase text-xs px-4 py-2 rounded shadow hover:shadow-md outline-none focus:outline-none mr-1 mb-1 ease-linear transition-all duration-150">Add Todo</button>
+      <button class="bg-gray-500 text-white active:bg-amber-600 font-bold uppercase text-xs px-4 py-2 rounded shadow hover:shadow-md outline-none focus:outline-none mr-1 mb-1 ease-linear transition-all duration-150" (click)="showAddTodo = false">Cancel</button>
+    </form>
+    <!-- Edit TODO Form -->
+    <form
+      class="mt-4"
+      *ngIf="isEditEnabled"
+      [hidden]="!isEditEnabled"
+      (submit)="editTodo(); isEditEnabled = false"
+    >
+      <div class="mb-4">
+        <input
+          type="text"
+          class="appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+          placeholder="Title"
+          name="title"
+          [(ngModel)]="editingTodo.title"
+        />
+      </div>
+      <div class="mb-4">
+        <textarea
+          class="appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+          rows="3"
+          name="description"
+          placeholder="Description"
+          [(ngModel)]="editingTodo.description"
+        ></textarea>
+      </div>
+      <button
+        type="submit"
+        class="bg-blue-500 text-white active:bg-amber-600 font-bold uppercase text-xs px-4 py-2 rounded shadow hover:shadow-md outline-none focus:outline-none mr-1 mb-1 ease-linear transition-all duration-150"
+      >
+        Edit Todo
+      </button>
+      <button class="bg-gray-500 text-white active:bg-amber-600 font-bold uppercase text-xs px-4 py-2 rounded shadow hover:shadow-md outline-none focus:outline-none mr-1 mb-1 ease-linear transition-all duration-150" (click)="isEditEnabled = false">Cancel</button>
+    </form>
+    <!-- TODO -->
+    <ul
+      id="todos"
+      class="border rounded-md shadow-md"
+      cdkDropList
+      [cdkDropListData]="todos"
+      [cdkDropListConnectedTo]="['doingTodos', 'doneTodos']"
+      (cdkDropListDropped)="onTodoDrop($event)"
+    >
+      <li
+        class="border-b ml-1 py-2"
+        *ngFor="let todo of todos"
+        cdkDrag
+        [cdkDragData]="todo"
+      >
+        <h5 class="font-bold">{{ todo.title }}</h5>
+        <p class="text-gray-700">{{ todo.description }}</p>
+        <button
+          class="bg-amber-500 text-white active:bg-amber-600 font-bold uppercase text-xs px-4 py-2 rounded shadow hover:shadow-md outline-none focus:outline-none mr-1 mb-1 ease-linear transition-all duration-150"
+          (click)="editTodoItem(todo)"
+        >
+          Edit
+        </button>
+        <button
+          class="bg-slate-500 text-white active:bg-slate-600 font-bold uppercase text-xs px-4 py-2 rounded shadow hover:shadow-md outline-none focus:outline-none mr-1 mb-1 ease-linear transition-all duration-150 ml-2"
+          (click)="deleteTodo(todo.id)"
+        >
+          Delete
+        </button>
+      </li>
+    </ul>
+  </div>
+  <!-- DOING -->
+  <div class="w-1/3 p-4">
+    <h3 class="font-bold mb-4">Doing</h3>
+    <ul
+      id="doingTodos"
+      class="border rounded-md shadow-md"
+      cdkDropList
+      [cdkDropListData]="doingTodos"
+      [cdkDropListConnectedTo]="['todos', 'doneTodos']"
+      (cdkDropListDropped)="onDoingDrop($event)"
+    >
+      <li
+        class="border-b ml-1 py-2"
+        *ngFor="let todo of doingTodos"
+        cdkDrag
+        [cdkDragData]="todo"
+      >
+        <h5 class="font-bold">{{ todo.title }}</h5>
+        <p class="text-gray-700">{{ todo.description }}</p>
+        <button
+          class="bg-amber-500 text-white active:bg-amber-600 font-bold uppercase text-xs px-4 py-2 rounded shadow hover:shadow-md outline-none focus:outline-none mr-1 mb-1 ease-linear transition-all duration-150"
+          (click)="editTodoItem(todo)"
+        >
+          Edit
+        </button>
+        <button
+          class="bg-slate-500 text-white active:bg-slate-600 font-bold uppercase text-xs px-4 py-2 rounded shadow hover:shadow-md outline-none focus:outline-none mr-1 mb-1 ease-linear transition-all duration-150 ml-2"
+          (click)="deleteTodo(todo.id)"
+        >
+          Delete
+        </button>
+      </li>
+    </ul>
+  </div>
+  <!-- DONE -->
+  <div class="w-1/3 p-4">
+    <h3 class="font-bold mb-4">Done</h3>
+    <ul
+      id="doneTodos"
+      class="border rounded-md shadow-md"
+      cdkDropList
+      [cdkDropListData]="doneTodos"
+      [cdkDropListConnectedTo]="['doingTodos']"
+      (cdkDropListDropped)="onDoneDrop($event)"
+    >
+      <li
+        class="border-b ml-1 py-2"
+        *ngFor="let todo of doneTodos"
+        cdkDrag
+        [cdkDragData]="todo"
+      >
+        <h5 class="font-bold">{{ todo.title }}</h5>
+        <p class="text-gray-700">{{ todo.description }}</p>
+        <button
+          class="bg-amber-500 text-white active:bg-amber-600 font-bold uppercase text-xs px-4 py-2 rounded shadow hover:shadow-md outline-none focus:outline-none mr-1 mb-1 ease-linear transition-all duration-150"
+          (click)="editTodoItem(todo)"
+        >
+          Edit
+        </button>
+        <button
+          class="bg-slate-500 text-white active:bg-slate-600 font-bold uppercase text-xs px-4 py-2 rounded shadow hover:shadow-md outline-none focus:outline-none mr-1 mb-1 ease-linear transition-all duration-150 ml-2"
+          (click)="deleteTodo(todo.id)"
+        >
+          Delete
+        </button>
+      </li>
+    </ul>
+  </div>
+</div>
